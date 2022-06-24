@@ -20,9 +20,26 @@ Just run the script using Python3
 python3 updateSSH.py
 ```
 
-## Caveats
-For this to work there are a few minor things to keep in mind:
-1. The 1Password CLI has no way of filtering items by category "SSH-Keys".  
-   So, as a workaround, all your keys need to have a tag "SSH-Key" or "SSH-Keys"
-2. In order to write a proper config file for ssh every SSH-Key needs a URL-field labelled "URL".  
-   This field must contain the URL that is used to log in via SSH
+## How it works
+1. If not provided via the `--user=` command line argument the script will prompt for an SSH username that will be needed in step 4
+2. The script will load every SSH-Key from 1Password that satisfies the following conditions:
+   - They lie in your "Personal" vault
+   - They have a URL field labelled "URL" that contains the URL that is used to log in via SSH
+   - They are tagged with either "SSH-Key" or "SSH-Keys"
+3. The public keys of these items are exported to `~/.ssh/1password/<short_title>.pub`, where the `short_title` is generated from the item's lower-case title by removing the word "ssh(-key)" and any non-letter character.  
+   An SSH-Key with the title "SSH-Key MyServer" will be exported to "~/.ssh/1password/myserver.pub"
+4. An SSH config file is written to `~/.ssh/1password/config` that contains a host entry for every exported SSH-Key  
+   These entries look like the following
+   ```
+   Host <short_title>
+     HostName <URL>
+     IdentityFile ~/.ssh/1password/<short_title>.pub
+     IdentitiesOnly yes
+     User <user>
+   ```
+   With this config you will be able to just type `ssh <short_title>` and you will be connected as the user provided in step 1
+
+Make sure to add this line at the start of your `~/.ssh/config` file in order to include the generated config file.
+```
+Include ~/.ssh/1password/config
+```
