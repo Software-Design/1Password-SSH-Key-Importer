@@ -24,6 +24,13 @@ class SSHKeyImporter():
         self.urlaction = urlaction
         self.labelsaction = labelsaction
 
+        if sys.platform.startswith('linux'):
+            self.identityAgent = '~/.1password/agent.sock'
+        elif sys.platform.startswith('darwin'):
+            self.identityAgent = '"~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"'
+        else:
+            self.identityAgent = None
+
     def startImport(self):
         """Loads SSH keys from 1Password, exports the public keys and writes the ssh config file"""
         self.getKeyList()
@@ -111,6 +118,8 @@ class SSHKeyImporter():
                 hosts[-1].append('  IdentitiesOnly yes')
             if key['user']:
                 hosts[-1].append(f'  User {key["user"]}')
+            if self.identityAgent:
+                hosts[-1].append(f'  IdentityAgent {self.identityAgent}')
 
         fileName = os.path.join(self.EXPORT_PUBKEY_DIR, 'config')
         with open(fileName, 'w') as f:
@@ -159,7 +168,7 @@ if __name__ == '__main__':
     useraction = 'prompt'
     urlaction = 'prompt'
     labelsaction = 'prompt'
-    for arg in sys.argv:
+    for arg in sys.argv[1:]:
         if arg.startswith('--if-user-empty='):
             useraction = arg.replace('--if-user-empty=', '')
         elif arg.startswith('--if-url-empty='):
@@ -174,6 +183,9 @@ if __name__ == '__main__':
                 print('Invalid value for argument "--if-labels-empty":', labelsaction)
                 print('Allowed values:', ", ".join(allowed))
                 sys.exit(1)
+        else:
+            print(f'Error: Unknown argument: "{arg}"')
+            sys.exit(1)
 
     importer = SSHKeyImporter(useraction, urlaction, labelsaction)
     importer.startImport()
