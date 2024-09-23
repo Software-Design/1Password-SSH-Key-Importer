@@ -139,7 +139,7 @@ class SSHKeyImporter():
         return {entry['label'].lower(): entry.get('value') for entry in json.loads(keyData)['fields']}
 
     def _getShortTitle(self, key):
-        return re.sub(r'(ssh(\-key)?)|[^a-z]+', '', key['title'].lower())
+        return re.sub(r'(ssh(\-key)?)|[^a-z0-9]+', '', key['title'].lower())
 
     def _splitLabels(self, labels):
         return [label for label in labels.replace(' ', ',').split(',') if label]
@@ -161,13 +161,13 @@ if __name__ == '__main__':
         print('    - leave-empty: Will not set a HostName in the config file')
         print('  --if-labels-empty={prompt|use-default}')
         print('    Defines the behaviour if a key has no field labelled "Labels"')
-        print('    - prompt: Will prompt for labels (default)')
-        print('    - use-default: Will use the URL and a short name that is generated from the keys title as default')
+        print('    - use-default: Will use the URL and a short name that is generated from the keys title as default (default)')
+        print('    - prompt: Will prompt for labels')
         sys.exit(0)
 
     useraction = 'prompt'
     urlaction = 'prompt'
-    labelsaction = 'prompt'
+    labelsaction = 'use-default'
     for arg in sys.argv[1:]:
         if arg.startswith('--if-user-empty='):
             useraction = arg.replace('--if-user-empty=', '')

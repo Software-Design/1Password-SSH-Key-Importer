@@ -24,7 +24,7 @@ python3 updateSSH.py
 1. The script will load every SSH-Key from 1Password that satisfies the following conditions:
    - They lie in your "Personal" vault
    - They are tagged with either "SSH-Key" or "SSH-Keys"
-2. The public keys of these items are exported to `~/.ssh/1password/<short_title>.pub`, where the `short_title` is generated from the item's lower-case title by removing the word "ssh(-key)" and any non-letter character.  
+2. The public keys of these items are exported to `~/.ssh/1password/<short_title>.pub`, where the `short_title` is generated from the item's lower-case title by removing the word "ssh(-key)" and any non-letter or non-digit character.  
    An SSH-Key with the title "SSH-Key MyServer" will for example be exported to "~/.ssh/1password/myserver.pub"
 3. The script will look for fields labelled "User", "URL" and "Labels" in the SSH Keys. If not present, they will be prompted via command line.  
 4. An SSH config file is written to `~/.ssh/1password/config` that contains a host entry for every exported SSH-Key  
