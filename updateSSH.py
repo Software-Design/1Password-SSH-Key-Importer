@@ -14,7 +14,7 @@ class SSHKeyImporter():
     - Labels: Will be used as alias for the SSH Command"""
     HOME_DIR = Path.home()
     SSH_CONFIG_DIR = HOME_DIR / '.ssh'
-    EXPORT_PUBKEY_DIR = SSH_CONFIG_DIR / '1password'
+    EXPORT_PUBKEY_DIR = SSH_CONFIG_DIR / '1passwordpubkeys'
 
     TAGS = 'SSH-Key,SSH-Keys'
 
