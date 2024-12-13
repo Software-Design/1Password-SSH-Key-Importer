@@ -1,5 +1,4 @@
 import json
-import os
 import re
 import subprocess
 import sys
@@ -13,9 +12,9 @@ class SSHKeyImporter():
     - URL: Will be used as the HostName of the SSH Server
     - User: Will be used as the default user to log into the SSH Server
     - Labels: Will be used as alias for the SSH Command"""
-    HOME_DIR = str(Path.home())
-    SSH_CONFIG_DIR = os.path.join(HOME_DIR, '.ssh')
-    EXPORT_PUBKEY_DIR = os.path.join(SSH_CONFIG_DIR, '1password')
+    HOME_DIR = Path.home()
+    SSH_CONFIG_DIR = HOME_DIR / '.ssh'
+    EXPORT_PUBKEY_DIR = SSH_CONFIG_DIR / '1password'
 
     TAGS = 'SSH-Key,SSH-Keys'
 
@@ -56,12 +55,12 @@ class SSHKeyImporter():
 
     def exportKeys(self):
         """Exports all loaded public keys to EXPORT_PUBKEY_DIR"""
-        if not os.path.exists(self.EXPORT_PUBKEY_DIR):
-            os.mkdir(self.EXPORT_PUBKEY_DIR)
+        if not self.EXPORT_PUBKEY_DIR.exists():
+            self.EXPORT_PUBKEY_DIR.mkdir()
 
         for key in self.keys:
             if 'public key' in key:
-                key['fileName'] = os.path.join(self.EXPORT_PUBKEY_DIR, self._getShortTitle(key)) + '.pub'
+                key['fileName'] = self.EXPORT_PUBKEY_DIR / f"{self._getShortTitle(key)}.pub"
                 print(f'Exporting {key["title"]!r} to {key["fileName"]!r}')
                 with open(key['fileName'], 'w') as f:
                     f.write(key['public key'])
@@ -121,7 +120,7 @@ class SSHKeyImporter():
             if self.identityAgent:
                 hosts[-1].append(f'  IdentityAgent {self.identityAgent}')
 
-        fileName = os.path.join(self.EXPORT_PUBKEY_DIR, 'config')
+        fileName = self.EXPORT_PUBKEY_DIR / 'config'
         with open(fileName, 'w') as f:
             print('Writing config file:', fileName)
             for host in hosts:
